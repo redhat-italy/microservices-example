@@ -17,6 +17,7 @@
 package com.showcase.coolgw;
 
 import com.showcase.coolgw.model.Account;
+import com.showcase.coolgw.model.Quote;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http4.HttpMethods;
@@ -35,6 +36,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
+
+import static org.apache.http.client.methods.RequestBuilder.post;
 
 @Component
 public class ApiGatewayRoute extends RouteBuilder {
@@ -69,7 +72,7 @@ public class ApiGatewayRoute extends RouteBuilder {
             .produces(MediaType.APPLICATION_JSON_VALUE)
 
         // Handle CORS Pre-flight requests
-        .options("/account/{accountId}")
+        .options("/{accountId}")
             .route().id("accountOptions").end()
         .endRest()
 
@@ -83,7 +86,7 @@ public class ApiGatewayRoute extends RouteBuilder {
                 .removeHeaders("CamelHttp*")
                 .setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
                 .setHeader(Exchange.HTTP_URI, simple("http://{{env:ACCOUNT_ENDPOINT:localhost:8082}}/api/account/${header.accountId}"))
-                .hystrix().id("Product Service")
+                .hystrix().id("Account Service")
                     .hystrixConfiguration()
                         .executionTimeoutInMilliseconds(5000).circuitBreakerSleepWindowInMilliseconds(10000)
                     .end()
@@ -106,36 +109,46 @@ public class ApiGatewayRoute extends RouteBuilder {
                 .constant(Collections.singletonList(new Account()))
                 .marshal().json(JsonLibrary.Jackson, List.class);
 
-        /*
-               rest("/quote/").description("Customer quote Service")
-                   .produces(MediaType.APPLICATION_JSON_VALUE)
-                       .get("/lastvalue/{symbol}").description("Get Customer quote").outType(Quote.class)
-                         .param().name("symbol").type(RestParamType.path).description("The Symbol of the quote to search").dataType("string").endParam()
-                         .route().id("quoteRoute")
-                             .setBody(simple("null"))
-                             .log("Calling {{env:QUOTE_ENDPOINT:localhost:8084}}")
-                             .removeHeaders("CamelHttp*")
-                             .setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-                             .setHeader(Exchange.HTTP_URI, simple("http://{{env:QUOTE_ENDPOINT:localhost:8084}}/api/quote/lastvalue/${header.symbol}"))
-                             .hystrix().id("Quote Service")
-                                 .hystrixConfiguration()
-                                     .executionTimeoutInMilliseconds(5000).circuitBreakerSleepWindowInMilliseconds(10000)
-                                 .end()
-                                 .to("http4://DUMMY")
-                             .onFallback()
-                                 .to("direct:quoteFallback")
-                             .end()
 
-                             .choice().when(body().isNull()).to("direct:quoteFallback").end()
-                         .end()
-                     .endRest();
+        rest("/quote/").description("Customer account Service")
+                .produces(MediaType.APPLICATION_JSON_VALUE)
+        .options("/lastvalue/{symbol}")
+                .route().id("quoteOptions").end()
+                .endRest()
 
-                   from("direct:quoteFallback")
-                       .id("quoteFallbackRoute")
-                       .transform()
-                       .constant(Collections.singletonList(new Quote()))
-                       .marshal().json(JsonLibrary.Jackson, List.class);
-                           */
+
+        .get("/lastvalue/{symbol}").description("Get Customer account")
+                .bindingMode(RestBindingMode.json)
+                .param().name("symbol").type(RestParamType.path).description("The quote symbol to search").dataType("string").endParam()
+                .outType(Quote.class)
+                .route().id("quoteRoute")
+                    .setBody(simple("null"))
+                    .log("Calling {{env:QUOTE_ENDPOINT:localhost:8084}}")
+                    .removeHeaders("CamelHttp*")
+                    .setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+                    .setHeader(Exchange.HTTP_URI, simple("http://{{env:QUOTE_ENDPOINT:localhost:8084}}/api/quote/lastvalue/${header.symbol}"))
+                    .hystrix().id("Quote Service")
+                        .hystrixConfiguration()
+                            .executionTimeoutInMilliseconds(5000).circuitBreakerSleepWindowInMilliseconds(10000)
+                        .end()
+                        .to("http4://DUMMY")
+                    .onFallback()
+                        .to("direct:quoteFallback")
+                    .end()
+                   // .log("Received response ${body}")
+                    .choice().when(body().isNull()).to("direct:accountFallback").end()
+                    .setHeader("CamelJacksonUnmarshalType", simple(Quote.class.getName()))
+                    .unmarshal().json(JsonLibrary.Jackson, Quote.class)
+                    //.setHeader("Content-Type", simple(MediaType.APPLICATION_JSON_VALUE))
+            .end()
+        .endRest();
+
+        from("direct:quoteFallback")
+                .id("quoteFallbackRoute")
+                .transform()
+                .constant(Collections.singletonList(new Quote()))
+                .marshal().json(JsonLibrary.Jackson, List.class);
+
 
     }
 

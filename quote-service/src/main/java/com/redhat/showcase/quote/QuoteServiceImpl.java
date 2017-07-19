@@ -49,18 +49,18 @@ public class QuoteServiceImpl implements QuoteService {
             quoteSearch = new ObjectMapper().readValue(filter, QuoteSearch.class);
             List<String> quoteTerms = quoteSearch.getTerms();
 
-            for (String aName : quoteTerms) {
-                Quote quoteSymbolResult = repository.findBySymbol(aName);
-                System.out.println("Symbol for [" + aName + "] -> " + quoteSymbolResult);
+            for (String aTerm : quoteTerms) {
+                Quote quoteSymbolResult = repository.findBySymbol(aTerm);
+                System.out.println("Symbol for [" + aTerm + "] -> " + quoteSymbolResult);
 
                 if (quoteSymbolResult != null) {
                     quotesSearchResult.add(quoteSymbolResult);
                 }
 
-                List<Quote> nameSearchResult = repository.findByName(aName);
+                List<Quote> nameSearchResult = repository.findByName(aTerm);
 
                 for (Quote quote : nameSearchResult) {
-                    System.out.println("Name [" + aName + "]  -> " + quote);
+                    System.out.println("Name [" + aTerm + "]  -> " + quote);
                 }
 
                 quotesSearchResult.addAll(nameSearchResult);
