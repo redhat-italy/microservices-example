@@ -1,0 +1,378 @@
+{
+  "apiVersion": "v1",
+  "kind": "Template",
+  "metadata": {
+    "annotations": {
+      "description": "gateway App example",
+      "tags": "quickstart,java,springboot,fis",
+      "iconClass": "icon-jboss",
+      "version": "2.0"
+    },
+    "name": "s2i-gateway"
+  },
+  "labels": {
+    "template": "s2i-gateway"
+  },
+  "parameters": [
+    {
+      "name": "APP_NAME",
+      "displayName": "Application Name",
+      "required": true,
+      "value": "gateway",
+      "description": "The name assigned to the application."
+    },
+    {
+      "name": "SOURCE_REPOSITORY_URL",
+      "displayName": "Git Repository URL",
+      "required": true,
+      "value": "https://github.com/eljeko/microservices-showcase",
+      "description": "The URL of the repository with your application source code."
+    },
+    {
+      "name": "SOURCE_REPOSITORY_REF",
+      "displayName": "Git Reference",
+      "value": "master",
+      "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch."
+    },
+    {
+      "displayName": "Context Directory",
+      "description": "Path within Git project to build; empty for root project directory.",
+      "name": "CONTEXT_DIR",
+      "value": "gateway",
+      "required": false
+    },
+    {
+      "name": "BUILDER_VERSION",
+      "displayName": "Builder version",
+      "value": "2.0",
+      "description": "The version of the FIS S2I builder image to use."
+    },
+    {
+      "displayName": "Custom http Route Hostname",
+      "description": "Custom hostname for http service route.  Leave blank for default hostname, e.g.: <application-name>-<project>.<default-domain-suffix>",
+      "name": "HOSTNAME_HTTP",
+      "value": "",
+      "required": false
+    },
+    {
+      "name": "APP_VERSION",
+      "displayName": "Application Version",
+      "value": "1.0",
+      "description": "The application version."
+    },
+    {
+      "name": "MAVEN_ARGS",
+      "displayName": "Maven Arguments",
+      "value": "package -DskipTests -Dfabric8.skip -e -B",
+      "description": "Arguments passed to mvn in the build."
+    },
+    {
+      "name": "MAVEN_ARGS_APPEND",
+      "displayName": "Extra Maven Arguments",
+      "description": "Extra arguments passed to mvn, e.g. for multi-module builds."
+    },
+    {
+      "name": "MAVEN_MIRROR_URL",
+      "displayName": "Maven mirror repository",
+      "value": "http://nexus.ci.svc:8081/nexus/content/groups/public/",
+      "description": "the url to your maven mirror eg: http://myrepo:8081/repos/content/groups/public/"
+    },
+    {
+      "name": "ARTIFACT_DIR",
+      "displayName": "Maven build directory",
+      "value": "",
+      "description": "Directory of the artifact to be built, e.g. for multi-module builds."
+    },
+    {
+      "name": "IMAGE_STREAM_NAMESPACE",
+      "displayName": "Image Stream Namespace",
+      "value": "openshift",
+      "required": true,
+      "description": "Namespace in which the Fuse ImageStreams are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project."
+    },
+    {
+      "name": "BUILD_SECRET",
+      "displayName": "Git Build Secret",
+      "generate": "expression",
+      "description": "The secret needed to trigger a build.",
+      "from": "[a-zA-Z0-9]{40}"
+    },
+    {
+      "name": "CPU_REQUEST",
+      "displayName": "CPU request",
+      "value": "0.2",
+      "required": true,
+      "description": "The amount of CPU to requests."
+    },
+    {
+      "name": "CPU_LIMIT",
+      "displayName": "CPU limit",
+      "value": "1.0",
+      "required": true,
+      "description": "The amount of CPU the container is limited to use."
+    }
+  ],
+  "objects": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "spec": {
+        "ports": [
+          {
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "deploymentconfig": "${APP_NAME}"
+        }
+      },
+      "metadata": {
+        "name": "${APP_NAME}",
+        "labels": {
+          "application": "${APP_NAME}"
+        },
+        "annotations": {
+          "description": "The web server's http port."
+        }
+      }
+    },
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "id": "${APP_NAME}-http",
+      "metadata": {
+        "name": "${APP_NAME}",
+        "labels": {
+          "application": "${APP_NAME}"
+        },
+        "annotations": {
+          "description": "Route for application's http service."
+        }
+      },
+      "spec": {
+        "host": "${HOSTNAME_HTTP}",
+        "to": {
+          "name": "${APP_NAME}"
+        }
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}",
+        "creationTimestamp": null,
+        "labels": {
+          "component": "${APP_NAME}",
+          "group": "quickstarts",
+          "project": "${APP_NAME}",
+          "provider": "s2i",
+          "version": "${APP_VERSION}"
+        }
+      },
+      "spec": {},
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}",
+        "creationTimestamp": null,
+        "labels": {
+          "component": "${APP_NAME}",
+          "group": "quickstarts",
+          "project": "${APP_NAME}",
+          "provider": "s2i",
+          "version": "${APP_VERSION}"
+        }
+      },
+      "spec": {
+        "triggers": [
+          {
+            "type": "GitHub",
+            "github": {
+              "secret": "${BUILD_SECRET}"
+            }
+          },
+          {
+            "type": "Generic",
+            "generic": {
+              "secret": "${BUILD_SECRET}"
+            }
+          },
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChange": {}
+          }
+        ],
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${SOURCE_REPOSITORY_URL}",
+            "ref": "${SOURCE_REPOSITORY_REF}"
+          },
+          "contextDir": "${CONTEXT_DIR}"
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "from": {
+              "kind": "ImageStreamTag",
+              "namespace": "${IMAGE_STREAM_NAMESPACE}",
+              "name": "fis-java-openshift:${BUILDER_VERSION}"
+            },
+            "forcePull": true,
+            "incremental": true,
+            "env": [
+              {
+                "name": "BUILD_LOGLEVEL",
+                "value": "5"
+              },
+              {
+                "name": "ARTIFACT_DIR",
+                "value": "${ARTIFACT_DIR}"
+              },
+              {
+                "name": "MAVEN_MIRROR_URL",
+                "value": "${MAVEN_MIRROR_URL}"
+              },
+              {
+                "name": "MAVEN_ARGS",
+                "value": "${MAVEN_ARGS}"
+              },
+              {
+                "name": "MAVEN_ARGS_APPEND",
+                "value": "${MAVEN_ARGS_APPEND}"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "${APP_NAME}:latest"
+          }
+        },
+        "resources": {}
+      },
+      "status": {
+        "lastVersion": 0
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}",
+        "creationTimestamp": null,
+        "labels": {
+          "component": "${APP_NAME}",
+          "group": "quickstarts",
+          "project": "${APP_NAME}",
+          "provider": "s2i",
+          "version": "${APP_VERSION}"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "${APP_NAME}"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${APP_NAME}:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "selector": {
+          "component": "${APP_NAME}",
+          "deploymentconfig": "${APP_NAME}",
+          "group": "quickstarts",
+          "project": "${APP_NAME}",
+          "provider": "s2i",
+          "version": "${APP_VERSION}"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "component": "${APP_NAME}",
+              "deploymentconfig": "${APP_NAME}",
+              "group": "quickstarts",
+              "project": "${APP_NAME}",
+              "provider": "s2i",
+              "version": "${APP_VERSION}"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "${APP_NAME}",
+                "image": "library/${APP_NAME}:latest",
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8081
+                  },
+                  "initialDelaySeconds": 10
+                },
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "http"
+                  },
+                  {
+                    "containerPort": 8778,
+                    "name": "jolokia"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "KUBERNETES_NAMESPACE",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "fieldPath": "metadata.namespace"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CATALOG_ENDPOINT",
+                    "value": "demo:8080"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "${CPU_REQUEST}"
+                  },
+                  "limits": {
+                    "cpu": "${CPU_LIMIT}"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}

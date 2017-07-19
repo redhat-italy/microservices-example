@@ -1,0 +1,23 @@
+MONGODB_DATABASE=sampledb
+_=/usr/bin/env
+MAVEN_ARGS=package -DskipTests -Dfabric8.skip -e -B
+JAVA_DATA_DIR=/deployments/data
+MONGODB_PORT_27017_TCP_PROTO=tcp
+PWD=/home/jboss
+MONGODB_PASSWORD=mongouser
+sh-4.2$ env|grep MONGO
+MONGODB_PORT_27017_TCP=tcp://172.30.79.82:27017
+MONGODB_PORT=tcp://172.30.79.82:27017
+MONGODB_PORT_27017_TCP_PORT=27017
+MONGO_SERVICE_NAME=mongodb
+MONGODB_SERVICE_HOST=172.30.79.82
+MONGODB_DATABASE=sampledb
+MONGODB_PORT_27017_TCP_PROTO=tcp
+MONGODB_PASSWORD=mongouser
+MONGODB_PORT_27017_TCP_ADDR=172.30.79.82
+MONGODB_SERVICE_PORT=27017
+MONGODB_USER=mongouser
+MONGODB_SERVICE_PORT_MONGO=27017
+sh-4.2$ command terminated with non-zero exit code: Error executing in Docker Co
+ntainer: 137
+disconnected

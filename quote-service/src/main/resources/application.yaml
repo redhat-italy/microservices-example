@@ -1,0 +1,29 @@
+cxf:
+  path: /api
+# lets listen on all ports to ensure we can be invoked from the pod IP
+server:
+  address: 0.0.0.0
+management:
+  address: 0.0.0.0
+  port: 8081
+
+# disable all management endpoints except health
+endpoints:
+  enabled: false
+  health:
+    enabled: true
+# Mongo DB connection
+spring:
+  data:
+    mongodb:
+      #url:      jdbc:mysql://${${mysql.service.name}.service.host}:${${mysql.service.name}.service.port}/${mysql.service.database}
+      # mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+      #uri: mongodb://${mongodb.user}:${mongodb.password}@${${mongodb.service.name}.service.host}:${${mongodb.service.name}.service.port}/${mongo.database}
+      #port: 27017
+      host: ${mongodb.service.host}
+      #port: ${${mongodb.service.name}.service.port}
+      port: ${mongodb.service.port.mongo}
+      username: ${mongodb.user}
+      password: ${mongodb.password}
+      database: ${mongodb.database}
+  
