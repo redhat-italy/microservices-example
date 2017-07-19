@@ -6,7 +6,7 @@
       "description": "Account service example based on spring boot and Camel",
       "tags": "showcase,quickstart,java,springboot,fis",
       "iconClass": "icon-jboss",
-      "version": "1.0"
+      "version": "2.0"
     },
     "name": "s2i-account"
   },
@@ -25,7 +25,7 @@
       "name": "GIT_SOURCE_REPOSITORY_URL",
       "displayName": "Git Repository URL",
       "required": true,
-      "value": "https://github.com/eljeko/microservices-showcase.git",
+      "value": "https://github.com/redhat-italy/microservices-example.git",
       "description": "The URL of the repository with your application source code."
     },
     {
@@ -170,11 +170,9 @@
         "name": "${SERVICE_NAME}"
       },
       "spec": {
-        "clusterIP": "None",
-        "deprecatedPublicIPs": [],
         "ports": [
           {
-            "port": 9411,
+            "port": 8080,
             "protocol": "TCP",
             "targetPort": 8080
           }

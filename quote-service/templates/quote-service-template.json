@@ -25,7 +25,7 @@
       "name": "GIT_SOURCE_REPOSITORY_URL",
       "displayName": "Git Repository URL",
       "required": true,
-      "value": "https://github.com/eljeko/microservices-showcase.git",
+      "value": "https://github.com/redhat-italy/microservices-example.git",
       "description": "The URL of the repository with your application source code."
     },
     {

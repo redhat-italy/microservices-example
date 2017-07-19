@@ -85,7 +85,7 @@ public class ApiGatewayRoute extends RouteBuilder {
                 .log("Calling {{env:ACCOUNT_ENDPOINT:localhost:8082}}")
                 .removeHeaders("CamelHttp*")
                 .setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-                .setHeader(Exchange.HTTP_URI, simple("http://{{env:ACCOUNT_ENDPOINT:localhost:8082}}/api/account/${header.accountId}"))
+                .setHeader(Exchange.HTTP_URI, simple("http://{{env:ACCOUNT_SERVICE_HOST:localhost}}:{{env:ACCOUNT_SERVICE_PORT:8082}}/api/account/${header.accountId}"))
                 .hystrix().id("Account Service")
                     .hystrixConfiguration()
                         .executionTimeoutInMilliseconds(5000).circuitBreakerSleepWindowInMilliseconds(10000)
