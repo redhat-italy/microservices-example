@@ -126,7 +126,7 @@ public class ApiGatewayRoute extends RouteBuilder {
                     .log("Calling {{env:QUOTE_ENDPOINT:localhost:8084}}")
                     .removeHeaders("CamelHttp*")
                     .setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-                    .setHeader(Exchange.HTTP_URI, simple("http://{{env:QUOTE_ENDPOINT:localhost:8084}}/api/quote/lastvalue/${header.symbol}"))
+                    .setHeader(Exchange.HTTP_URI, simple("http://{{env:QUOTE_SERVICE_HOST:localhost}}:{{env:QUOTE_SERVICE_PORT:8084}}/api/quote/lastvalue/${header.symbol}"))
                     .hystrix().id("Quote Service")
                         .hystrixConfiguration()
                             .executionTimeoutInMilliseconds(5000).circuitBreakerSleepWindowInMilliseconds(10000)

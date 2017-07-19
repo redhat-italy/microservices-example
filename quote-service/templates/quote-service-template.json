@@ -188,11 +188,9 @@
         "name": "${SERVICE_NAME}"
       },
       "spec": {
-        "clusterIP": "None",
-        "deprecatedPublicIPs": [],
         "ports": [
           {
-            "port": 9413,
+            "port": 8080,
             "protocol": "TCP",
             "targetPort": 8080
           }
