@@ -12,7 +12,6 @@ class Websocket extends RouteBuilder {
         from("activemq:queue:alerts")
                 .log("Got new alert ${body}")
                 .routeId("from-JMS-to-WebSocket")
-                .transform().simple("${body}")
                 .to("websocket://0.0.0.0:8080/alerts?sendToAll=true&staticResources=classpath:webapp");
     }
 }
