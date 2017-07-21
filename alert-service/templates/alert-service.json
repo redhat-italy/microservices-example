@@ -360,15 +360,15 @@
                 "image": "library/${APP_NAME}:latest",
                 "readinessProbe": {
                   "httpGet": {
-                    "path": "/health",
-                    "port": 8081
+                    "path": "/health.html",
+                    "port": 8080
                   },
                   "initialDelaySeconds": 10
                 },
                 "livenessProbe": {
                   "httpGet": {
-                    "path": "/health",
-                    "port": 8081
+                    "path": "/health.html",
+                    "port": 8080
                   },
                   "initialDelaySeconds": 180
                 },
