@@ -13,6 +13,6 @@ class Websocket extends RouteBuilder {
                 .log("Got new alert ${body}")
                 .routeId("from-JMS-to-WebSocket")
                 .transform().simple("${body}")
-                .to("websocket://localhost:8080/alerts?sendToAll=true&staticResources=classpath:webapp");
+                .to("websocket://0.0.0.0:8080/alerts?sendToAll=true&staticResources=classpath:webapp");
     }
 }
