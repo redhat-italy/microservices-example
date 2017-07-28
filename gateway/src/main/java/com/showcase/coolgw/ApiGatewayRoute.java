@@ -106,7 +106,7 @@ public class ApiGatewayRoute extends RouteBuilder {
         from("direct:accountFallback")
                 .id("accountFallbackRoute")
                 .transform()
-                .constant(Collections.singletonList(new Account()))
+                .constant(new Account())
                 .marshal().json(JsonLibrary.Jackson, List.class);
 
 
