@@ -146,7 +146,7 @@ public class ApiGatewayRoute extends RouteBuilder {
         from("direct:quoteFallback")
                 .id("quoteFallbackRoute")
                 .transform()
-                .constant(Collections.singletonList(new Quote()))
+                .constant(new Quote())
                 .marshal().json(JsonLibrary.Jackson, List.class);
 
 
