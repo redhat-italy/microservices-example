@@ -1,0 +1,8 @@
+zuul:
+  routes:
+    quote:
+      path: /api/quote/**
+      url: http://localhost:8084/api/quote/
+    account:
+      path: /api/account/**
+      url: http://localhost:8082/api/account/

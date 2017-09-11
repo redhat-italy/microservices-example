@@ -3,29 +3,29 @@
   "kind": "Template",
   "metadata": {
     "annotations": {
-      "description": "gateway App example",
+      "description": "Coe Bollette",
       "tags": "quickstart,java,springboot,fis",
       "iconClass": "icon-jboss",
       "version": "2.0"
     },
-    "name": "s2i-gateway"
+    "name": "coe-bollette"
   },
   "labels": {
-    "template": "s2i-gateway"
+    "template": "coe-bollette"
   },
   "parameters": [
     {
       "name": "APP_NAME",
       "displayName": "Application Name",
       "required": true,
-      "value": "gateway",
+      "value": "coe-bollette",
       "description": "The name assigned to the application."
     },
     {
       "name": "SOURCE_REPOSITORY_URL",
       "displayName": "Git Repository URL",
       "required": true,
-      "value": "https://github.com/redhat-italy/microservices-example.git",
+      "value": "http://gogs.cloud.istat.it/developer/coe-bollette.git",
       "description": "The URL of the repository with your application source code."
     },
     {
@@ -38,7 +38,7 @@
       "displayName": "Context Directory",
       "description": "Path within Git project to build; empty for root project directory.",
       "name": "CONTEXT_DIR",
-      "value": "gateway",
+      "value": "",
       "required": false
     },
     {
@@ -74,7 +74,7 @@
     {
       "name": "MAVEN_MIRROR_URL",
       "displayName": "Maven mirror repository",
-      "value": "http://nexus.ci.svc:8081/nexus/content/groups/public/",
+      "value": "http://work02.istat.it:8081/nexus/content/groups/public/",
       "description": "the url to your maven mirror eg: http://myrepo:8081/repos/content/groups/public/"
     },
     {
@@ -226,7 +226,7 @@
             "from": {
               "kind": "ImageStreamTag",
               "namespace": "${IMAGE_STREAM_NAMESPACE}",
-              "name": "fis-java-openshift:${BUILDER_VERSION}"
+              "name": "fis-java-oracle:${BUILDER_VERSION}"
             },
             "forcePull": true,
             "incremental": true,
